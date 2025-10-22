@@ -16,15 +16,11 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfig {
 
-    @Value("${backend.api.token}")
-    private String API_TOKEN;
-
     @Bean
     public RestClient getRestClient(@Value("${backend.api.url}") String API_URL) {
         return RestClient.builder()
             .baseUrl(API_URL)
             .requestFactory(new JdkClientHttpRequestFactory())
-            .defaultHeader("Authorization", "Bearer ".concat(API_TOKEN))
             .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
             .build();
     }
