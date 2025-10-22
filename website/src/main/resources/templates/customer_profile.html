@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <!--  Scripts to preload  -->
+    <link href="/webjars/bootstrap/5.2.3/css/bootstrap.css" rel="stylesheet"/>
+    <link href="/css/login.css" rel="stylesheet">
+    <script type="text/javascript" src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <!--  Meta Data and SEO  -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GlabTech: Your Trusted Partner for Tech Repairs and Services.">
+
+    <title>GlabTech - Tech Repairs and Services</title>
+</head>
+<body class="bg">
+    <div th:replace="~{fragments/header::header}"></div>
+
+    <div class="container">
+        <h1>Hello <span th:text="${customer.firstName()}">Unknown</span>, welcome to GlabTech!</h1>
+        <!--    Load any open ticksts for the customer    -->
+        <div th:replace="~{fragments/view/customer_tickets::customer_tickets}"></div>
+
+        <!--    View to add a new ticket    -->
+        <!--    View of devices owned by the customer    -->
+        <footer>
+            <p><em>GlabTech – Technology Made Easy.</em></p>
+        </footer>
+    </div>
+</body>
+</html>

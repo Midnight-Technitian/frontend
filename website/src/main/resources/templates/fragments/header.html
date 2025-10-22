@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+<head>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark navbar-custom navbar-fixed-top" th:fragment="header">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#" th:href="@{/home}">Midnight Technician</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li sec:authorize="hasRole('ROLE_OWNER')" class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/acp}">Database</a>
+                </li>
+                <li sec:authorize="hasAnyRole('ROLE_DEVELOPER', 'ROLE_MANAGEMENT', 'ROLE_ADMIN')" class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/admin}">Admin Dashboard</a>
+                </li>
+                <li sec:authorize="hasRole('ROLE_USER')" class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/dashboard}">Dashboard</a>
+                </li>
+            </ul>
+            <div class="auth-buttons">
+                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="btn btn-custom" href="#" th:href="@{/auth/logout}">Logout</a>
+                </div>
+                <div th:unless="${#authorization.expression('isAuthenticated()')}">
+                    <a class="btn btn-custom btn-secondary-custom" href="#" th:href="@{/auth/register}">Register</a>
+                    <a class="btn btn-custom" href="#" th:href="@{/auth/login}">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>
