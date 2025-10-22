@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -42,15 +43,22 @@ public class WebSecurityConfig {
                 .requestMatchers("/dashboard/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form.
-                loginPage("/auth//login")
+            .formLogin(form -> form
+                .loginPage("/auth/login")
+                .loginProcessingUrl("/auth/perform-login")
+                .usernameParameter("email")
+                .passwordParameter("password")
                 .defaultSuccessUrl("/dashboard", true)
+                .failureUrl("/auth/login?error")
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/auth/logout")
                 .logoutSuccessUrl("/")
                 .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**") // If you have APIs
             );
         return http.build();
     }
