@@ -1,6 +1,8 @@
 package dev.glabay.services;
 
+import dev.glabay.dtos.CustomerDto;
 import dev.glabay.dtos.UserCredentialsDto;
+import dev.glabay.dtos.UserProfileDto;
 import dev.glabay.feaures.users.UserProfile;
 import dev.glabay.feaures.users.UserProfileRepository;
 import dev.glabay.models.request.RegistrationStatus;
@@ -22,8 +24,11 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+
     private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final RestClient restClient;
 
     public RegistrationStatus registerUser(UserCredentialsDto request) {
         var exists = userProfileRepository.existsByEmail(request.email());
@@ -47,6 +52,36 @@ public class AuthenticationService {
         var cached = userProfileRepository.save(newUser);
         if (cached == null)
             return RegistrationStatus.FAILED;
+        createNewCustomer(cached);
         return RegistrationStatus.CREATED;
+    }
+
+    private void createNewCustomer(UserProfile newUser) {
+        var dto = new UserProfileDto(
+            newUser.getEmail(),
+            newUser.getFirstName(),
+            newUser.getLastName(),
+            newUser.getContactNumber(),
+            newUser.getCreatedAt(),
+            newUser.getUpdatedAt()
+        );
+        // TODO: Create a Kafka event for creating a new customer
+        // for now we will just make a POST to the backend API
+        var reply = restClient.post()
+            .uri("/v1/customers")
+            .body(dto)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<CustomerDto>() {});
+
+        var status = reply.getStatusCode();
+
+        if (status.is2xxSuccessful()) {
+            var customerDto = reply.getBody();
+            // TODO: maybe we can add a little welcome email to be sent to the customer
+            logger.info("Customer created successfully\n{}", customerDto);
+        }
+        else {
+            logger.error("Failed to create customer");
+        }
     }
 }
