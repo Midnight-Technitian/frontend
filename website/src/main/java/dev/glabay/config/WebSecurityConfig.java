@@ -1,8 +1,14 @@
 package dev.glabay.config;
 
+import dev.glabay.feaures.users.CustomUserDetailsService;
+import dev.glabay.feaures.users.UserProfileRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -12,12 +18,16 @@ import org.springframework.security.web.SecurityFilterChain;
  * @since 2025-10-21
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig {
+    private final UserProfileRepository userProfileRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/**")
+                .permitAll()
                 .requestMatchers(
                     "/",
                     "/home",
@@ -29,9 +39,7 @@ public class WebSecurityConfig {
                     "/webjars/**"
                 ).permitAll()
                 // User-Relate (requires a logged-in user to have a ROLE_USER to access)
-                .requestMatchers(
-                    "/dashboard/**"
-                ).hasRole("USER")
+                .requestMatchers("/dashboard/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.
@@ -45,5 +53,22 @@ public class WebSecurityConfig {
                 .permitAll()
             );
         return http.build();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService getUserDetailsService() {
+        return new CustomUserDetailsService(userProfileRepository);
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        var provider = new DaoAuthenticationProvider(getUserDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 }
