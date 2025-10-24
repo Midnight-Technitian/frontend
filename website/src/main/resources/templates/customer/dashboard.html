@@ -3,14 +3,10 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <!--  Scripts to preload  -->
-    <link href="/webjars/bootstrap/5.2.3/css/bootstrap.css" rel="stylesheet"/>
     <link href="/css/dashboard.css" rel="stylesheet">
-    <script type="text/javascript" src="/webjars/jquery/3.6.4/jquery.min.js"></script>
-    <script type="text/javascript" src="/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
-    <!--  Meta Data and SEO  -->
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Midnight Technician: Your Customer Dashboard">
+    <link href="/css/new_ticket.css" rel="stylesheet">
+
+    <script type="text/javascript" src="/js/ServiceTicket.js"></script>
 
     <title>Dashboard - Midnight Technician</title>
 </head>
@@ -80,11 +76,45 @@
     </footer>
 </div>
 
-<script>
-    function openNewTicketModal() {
-        alert('Open New Ticket Modal - Connect to your form/modal here');
-    }
+<div id="newTicketModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeNewTicketModal()">&times;</span>
+        <h2>New Service Ticket</h2>
+        <form id="newServiceRequest" onsubmit="submitNewTicket(event)">
+            <!--  Have the customerId as an element in the form, so that it can be sent with the request  -->
+            <input type="hidden" id="customerId" name="customerId" th:value="${customer.email()}">
 
+            <label for="deviceId">Select Existing Device</label>
+            <select id="deviceId" name="deviceId">
+                <!-- Default "None" option -->
+                <option value="">New Device</option>
+                <!-- Populate dynamically from backend -->
+                <option th:each="device : ${devices}"
+                        th:value="${device.deviceId()}"
+                        th:text="${device.deviceName()}">
+                </option>
+            </select>
+
+            <label for="deviceName">Device Name/Type</label>
+            <input type="text" id="deviceName" name="deviceName" placeholder="e.g. Gaming Desktop" required>
+
+            <label for="serviceId">Service Type</label>
+            <!-- TODO: Fetch a list of services from the backend -->
+            <select id="serviceId" name="serviceId" required>
+                <option th:each="service : ${services}"
+                        th:value="${service.serviceId}"
+                        th:text="${service.serviceName}">
+                </option>
+            </select>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" placeholder="Describe the issue or request..." required></textarea>
+
+            <button type="submit" class="submit-btn">Submit Ticket</button>
+        </form>
+    </div>
+</div>
+<script>
     function openNewDeviceModal() {
         alert('Open New Device Modal - Connect to your form/modal here');
     }

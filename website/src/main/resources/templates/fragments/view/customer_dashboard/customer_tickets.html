@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 <div th:fragment="customer_tickets">
+
     <div class="section-header">
         <h2 class="section-title">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -15,6 +16,10 @@
 
     <!-- Placeholder Tickets (remove when using real data) -->
     <div class="tickets-grid">
+    <!--
+        check if the list of open tickets are empty,
+        if so, display a message that no tickets are open.
+    -->
         <div class="ticket-card status-pending">
             <div class="ticket-header">
                 <span class="ticket-id">#TCK-001</span>
