@@ -11,14 +11,14 @@ function submitNewTicket(event) {
 
     const form = event.target;
     const data = {
-        customerId: form.customerId.value,
+        customerEmail: form.customerEmail.value,
         serviceId:form.serviceId.value,
         deviceId: form.deviceId.value,
         deviceName: form.deviceName.value,
         serviceDescription:form.description.value
     };
 
-    fetch("http://localhost:8081/api/v1/tickets", {
+    fetch("/api/tickets", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)

@@ -1,6 +1,5 @@
 package dev.glabay.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -17,9 +16,8 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
 
     @Bean
-    public RestClient getRestClient(@Value("${backend.api.url}") String API_URL) {
+    public RestClient getRestClient() {
         return RestClient.builder()
-            .baseUrl(API_URL)
             .requestFactory(new JdkClientHttpRequestFactory())
             .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
             .build();

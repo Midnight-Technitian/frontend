@@ -82,7 +82,8 @@
         <h2>New Service Ticket</h2>
         <form id="newServiceRequest" onsubmit="submitNewTicket(event)">
             <!--  Have the customerId as an element in the form, so that it can be sent with the request  -->
-            <input type="hidden" id="customerId" name="customerId" th:value="${customer.email()}">
+            <label for="customerEmail">Contact email/Type</label>
+            <input type="text" id="customerEmail" name="customerEmail" th:value="${customerEmail}" required>
 
             <label for="deviceId">Select Existing Device</label>
             <select id="deviceId" name="deviceId">
