@@ -4,6 +4,8 @@ import dev.glabay.dtos.CustomerDeviceDto;
 import dev.glabay.dtos.CustomerDto;
 import dev.glabay.dtos.ServiceDto;
 import dev.glabay.dtos.ServiceTicketDto;
+import dev.glabay.models.device.DeviceType;
+import dev.glabay.models.device.RegisteringDevice;
 import dev.glabay.models.request.ServiceRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -40,38 +42,38 @@ public class DashboardController {
             .retrieve()
             .toEntity(new ParameterizedTypeReference<CustomerDto>() {})
             .getBody();
-        model.addAttribute("customerEmail", email);
-        model.addAttribute("customer", customerDto);
-
         // fetch a list of available services
         var services = restClient.get()
             .uri("http://localhost:8080/api/v1/services")
             .retrieve()
             .toEntity(new ParameterizedTypeReference<Collection<ServiceDto>>() {})
             .getBody();
-        model.addAttribute("services", services);
-
         // fetch customer Open Service Tickets (up to a maximum of 6)
         var openTickets = restClient.get()
             .uri("http://localhost:8081/api/v1/tickets/customer?email=".concat(email))
             .retrieve()
             .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
             .getBody();
-        model.addAttribute("openTickets", openTickets);
-
         // fetch customer Devices (up to a maximum of 6)
         var devices = restClient.get()
             .uri("http://localhost:8080/api/v1/devices?email=".concat(email))
             .retrieve()
             .toEntity(new ParameterizedTypeReference<List<CustomerDeviceDto>>() {})
             .getBody();
+
+        var deviceTypes = List.of(DeviceType.values());
+
+        model.addAttribute("deviceTypes", deviceTypes);
+        model.addAttribute("customerEmail", email);
+        model.addAttribute("customer", customerDto);
+        model.addAttribute("services", services);
+        model.addAttribute("openTickets", openTickets);
         model.addAttribute("devices", devices);
         return "customer/dashboard";
     }
 
     @PostMapping("/api/tickets")
-    private String post(@RequestBody ServiceRequest body) {
-
+    private String postNewTicket(@RequestBody ServiceRequest body) {
         var ticket = restClient.post()
             .uri("http://localhost:8081/api/v1/tickets")
             .body(body)
@@ -80,6 +82,21 @@ public class DashboardController {
             .getBody();
 
         if (ticket == null)
+            return "redirect:/error";
+
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/api/device")
+    private String postNewDevice(@RequestBody RegisteringDevice body) {
+        var deviceDto = restClient.post()
+            .uri("http://localhost:8080/api/v1/devices")
+            .body(body)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<CustomerDeviceDto>() {})
+            .getBody();
+
+        if (deviceDto == null)
             return "redirect:/error";
 
         return "redirect:/dashboard";
