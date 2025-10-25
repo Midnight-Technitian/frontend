@@ -1,10 +1,13 @@
 package dev.glabay.feaures.users;
 
+import dev.glabay.models.roles.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Glabay | Glabay-Studios
@@ -36,6 +39,10 @@ public class UserProfile {
 
     @Column(name = "encrypted_password")
     private String encryptedPassword;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "roles")
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
