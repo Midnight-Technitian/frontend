@@ -1,5 +1,6 @@
 package dev.glabay.controllers;
 
+import dev.glabay.dtos.CustomerDeviceDto;
 import dev.glabay.dtos.CustomerDto;
 import dev.glabay.dtos.ServiceDto;
 import dev.glabay.dtos.ServiceTicketDto;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestClient;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Glabay | Glabay-Studios
@@ -48,15 +50,22 @@ public class DashboardController {
             .toEntity(new ParameterizedTypeReference<Collection<ServiceDto>>() {})
             .getBody();
         model.addAttribute("services", services);
-        // TODO: fetch customer Open Service Tickets (up to a maximum of 6)
+
+        // fetch customer Open Service Tickets (up to a maximum of 6)
+        var openTickets = restClient.get()
+            .uri("http://localhost:8081/api/v1/tickets/customer?email=".concat(email))
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
+            .getBody();
+        model.addAttribute("openTickets", openTickets);
 
         // fetch customer Devices (up to a maximum of 6)
-//        var devices = restClient.get()
-//            .uri("/v1/devices?email=".concat(email))
-//            .retrieve()
-//            .toEntity(new ParameterizedTypeReference<CustomerDeviceDto>() {})
-//            .getBody();
-//        model.addAttribute("devices", devices);
+        var devices = restClient.get()
+            .uri("http://localhost:8080/api/v1/devices?email=".concat(email))
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<List<CustomerDeviceDto>>() {})
+            .getBody();
+        model.addAttribute("devices", devices);
         return "customer/dashboard";
     }
 
