@@ -19,6 +19,9 @@
                 <li sec:authorize="hasAnyRole('ROLE_DEVELOPER', 'ROLE_MANAGEMENT', 'ROLE_ADMIN')" class="nav-item">
                     <a class="nav-link" href="#" th:href="@{/admin}">Admin Dashboard</a>
                 </li>
+                <li sec:authorize="hasRole('ROLE_TECHNICIAN')" class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/ticket/dashboard}">Ticket Dashboard</a>
+                </li>
                 <li sec:authorize="hasRole('ROLE_USER')" class="nav-item">
                     <a class="nav-link" href="#" th:href="@{/dashboard}">Dashboard</a>
                 </li>
