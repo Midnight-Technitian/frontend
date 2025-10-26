@@ -2,6 +2,7 @@ package dev.glabay.config;
 
 import dev.glabay.feaures.users.CustomUserDetailsService;
 import dev.glabay.feaures.users.UserProfileRepository;
+import dev.glabay.feaures.users.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final UserProfileRepository userProfileRepository;
+    private final UserRoleService userRoleService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -71,7 +73,7 @@ public class WebSecurityConfig {
 
     @Bean
     public UserDetailsService getUserDetailsService() {
-        return new CustomUserDetailsService(userProfileRepository);
+        return new CustomUserDetailsService(userProfileRepository,  userRoleService);
     }
 
     @Bean

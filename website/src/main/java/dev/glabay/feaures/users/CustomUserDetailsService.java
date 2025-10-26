@@ -4,6 +4,7 @@ import dev.glabay.logging.MidnightLogger;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullUnmarked;
 import org.slf4j.Logger;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final Logger log = MidnightLogger.getLogger(CustomUserDetailsService.class);
 
     private final UserProfileRepository userProfileRepository;
+    private final UserRoleService userRoleService;
 
     @Override
     @NullUnmarked
@@ -30,7 +32,18 @@ public class CustomUserDetailsService implements UserDetailsService {
             var cachedUser = userProfileRepository.findByEmailIgnoreCase(username);
             log.info("UserDetails for username: {}", cachedUser);
             return cachedUser
-                .map(CustomUserDetails::new)
+                .map(userProfile -> {
+                    var cachedRoles = userRoleService.findAllForEmail(userProfile.getEmail());
+                    var authorities = cachedRoles.stream()
+                        .map(role -> new SimpleGrantedAuthority(role.getRole()))
+                        .toList();
+
+                    return new org.springframework.security.core.userdetails.User(
+                        userProfile.getEmail(),
+                        userProfile.getEncryptedPassword(),
+                        authorities
+                    );
+                })
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         }
         log.debug("No user found for for email: {}", username);
