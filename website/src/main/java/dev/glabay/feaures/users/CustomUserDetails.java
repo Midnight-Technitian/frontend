@@ -5,8 +5,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * @author Glabay | Glabay-Studios
@@ -14,16 +14,27 @@ import java.util.stream.Collectors;
  * @social Discord: Glabay
  * @since 2024-11-30
  */
-public record CustomUserDetails(
-    UserProfile userProfile
-) implements UserDetails {
+public class CustomUserDetails implements UserDetails {
+
+    private final UserProfile userProfile;
+
+    private final SimpleGrantedAuthority ROLE_OWNER = new SimpleGrantedAuthority("ROLE_OWNER");
+    private final SimpleGrantedAuthority ROLE_DEVELOPER = new SimpleGrantedAuthority("ROLE_DEVELOPER");
+    private final SimpleGrantedAuthority ROLE_MANAGER = new SimpleGrantedAuthority("ROLE_MANAGEMENT");
+    private final SimpleGrantedAuthority ROLE_TECHNICIAN = new SimpleGrantedAuthority("ROLE_TECHNICIAN");
+    private final SimpleGrantedAuthority ROLE_USER = new SimpleGrantedAuthority("ROLE_USER");
+
+    public CustomUserDetails(UserProfile userProfile) {
+        this.userProfile = userProfile;
+    }
 
     @Override
     @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return userProfile.getRoles().stream()
-            .map(role -> new SimpleGrantedAuthority(role.name()))
-            .collect(Collectors.toSet());
+        var authorities = new ArrayList<SimpleGrantedAuthority>();
+            authorities.add(ROLE_USER);
+
+        return authorities;
     }
 
     @Override
@@ -35,25 +46,5 @@ public record CustomUserDetails(
     @NullMarked
     public String getUsername() {
         return userProfile.getEmail();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }
