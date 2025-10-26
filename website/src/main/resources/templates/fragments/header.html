@@ -14,13 +14,15 @@
             <!-- Left nav items -->
             <ul class="navbar-nav mb-2 mb-md-0">
                 <li sec:authorize="hasRole('ROLE_OWNER')" class="nav-item">
+                    <!-- TODO: Write the controller for Owner View -->
                     <a class="nav-link" href="#" th:href="@{/acp}">Database</a>
                 </li>
-                <li sec:authorize="hasAnyRole('ROLE_DEVELOPER', 'ROLE_MANAGEMENT', 'ROLE_ADMIN')" class="nav-item">
-                    <a class="nav-link" href="#" th:href="@{/admin}">Admin Dashboard</a>
+                <li sec:authorize="hasAnyRole('ROLE_DEVELOPER', 'ROLE_MANAGEMENT')" class="nav-item">
+                    <!-- TODO: Write the controller for Manager View -->
+                    <a class="nav-link" href="#" th:href="@{/dashboard/admin}">Admin Dashboard</a>
                 </li>
                 <li sec:authorize="hasRole('ROLE_TECHNICIAN')" class="nav-item">
-                    <a class="nav-link" href="#" th:href="@{/ticket/dashboard}">Ticket Dashboard</a>
+                    <a class="nav-link" href="#" th:href="@{/dashboard/ticketing}">Ticket Dashboard</a>
                 </li>
                 <li sec:authorize="hasRole('ROLE_USER')" class="nav-item">
                     <a class="nav-link" href="#" th:href="@{/dashboard}">Dashboard</a>
