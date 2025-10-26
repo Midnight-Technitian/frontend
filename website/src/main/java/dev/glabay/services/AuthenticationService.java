@@ -3,7 +3,6 @@ package dev.glabay.services;
 import dev.glabay.dtos.CustomerDto;
 import dev.glabay.dtos.UserCredentialsDto;
 import dev.glabay.dtos.UserProfileDto;
-import dev.glabay.models.roles.Role;
 import dev.glabay.feaures.users.UserProfile;
 import dev.glabay.feaures.users.UserProfileRepository;
 import dev.glabay.models.request.RegistrationStatus;
@@ -47,7 +46,6 @@ public class AuthenticationService {
             newUser.setLastName(request.lastName());
             newUser.setContactNumber(request.contactNumber());
             newUser.setEncryptedPassword(passwordEncoder.encode(request.password()));
-            newUser.getRoles().add(Role.ROLE_USER);
             newUser.setCreatedAt(LocalDateTime.now());
             newUser.setUpdatedAt(LocalDateTime.now());
 
@@ -64,7 +62,6 @@ public class AuthenticationService {
             newUser.getFirstName(),
             newUser.getLastName(),
             newUser.getContactNumber(),
-            newUser.getRoles(),
             newUser.getCreatedAt(),
             newUser.getUpdatedAt()
         );
