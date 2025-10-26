@@ -11,11 +11,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestClient;
 
 import java.util.Collection;
@@ -29,11 +31,12 @@ import java.util.List;
  */
 @NullMarked
 @Controller
+@RequestMapping("/dashboard")
 @RequiredArgsConstructor
 public class DashboardController {
     private final RestClient restClient;
 
-    @GetMapping("/dashboard")
+    @GetMapping
     public String getDashboard(HttpServletRequest request, Model model) {
         var email = request.getRemoteUser();
         // fetch the customer data object
@@ -69,36 +72,28 @@ public class DashboardController {
         model.addAttribute("services", services);
         model.addAttribute("openTickets", openTickets);
         model.addAttribute("devices", devices);
-        return "customer/dashboard";
+        return "dashboards/customer/dashboard";
     }
 
-    @PostMapping("/api/tickets")
-    private String postNewTicket(@RequestBody ServiceRequest body) {
-        var ticket = restClient.post()
-            .uri("http://localhost:8081/api/v1/tickets")
-            .body(body)
+    @GetMapping("/ticketing")
+    @PreAuthorize("hasRole('TECHNICIAN')")
+    public String getTicketingDashboard(HttpServletRequest request, Model model) {
+        // get the email of the user to fetch their employee record
+        var email = request.getRemoteUser();
+
+        var openTickets = restClient.get()
+            .uri("http://localhost:8081/api/v1/tickets/unclaimed")
             .retrieve()
-            .toEntity(new ParameterizedTypeReference<ServiceTicketDto>() {})
+            .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
             .getBody();
 
-        if (ticket == null)
-            return "redirect:/error";
-
-        return "redirect:/dashboard";
-    }
-
-    @PostMapping("/api/device")
-    private String postNewDevice(@RequestBody RegisteringDevice body) {
-        var deviceDto = restClient.post()
-            .uri("http://localhost:8080/api/v1/devices")
-            .body(body)
+        var claimedTickets = restClient.get()
+            .uri("http://localhost:8081/api/v1/tickets/claimed")
             .retrieve()
-            .toEntity(new ParameterizedTypeReference<CustomerDeviceDto>() {})
+            .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
             .getBody();
 
-        if (deviceDto == null)
-            return "redirect:/error";
-
-        return "redirect:/dashboard";
+        model.addAttribute("openTickets", openTickets);
+        return "dashboards/tickets/dashboard";
     }
 }
