@@ -5,8 +5,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * @author Glabay | Glabay-Studios
@@ -14,27 +14,16 @@ import java.util.Collection;
  * @social Discord: Glabay
  * @since 2024-11-30
  */
-public class CustomUserDetails implements UserDetails {
-
-    private final UserProfile userProfile;
-
-    private final SimpleGrantedAuthority ROLE_USER = new SimpleGrantedAuthority("ROLE_USER");
-    private final SimpleGrantedAuthority ROLE_MANAGER = new SimpleGrantedAuthority("ROLE_MANAGEMENT");
-    private final SimpleGrantedAuthority ROLE_DEVELOPER = new SimpleGrantedAuthority("ROLE_DEVELOPER");
-    private final SimpleGrantedAuthority ROLE_ADMINISTRATOR = new SimpleGrantedAuthority("ROLE_ADMIN");
-
-    public CustomUserDetails(UserProfile userProfile) {
-        this.userProfile = userProfile;
-    }
+public record CustomUserDetails(
+    UserProfile userProfile
+) implements UserDetails {
 
     @Override
     @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        var authorities = new ArrayList<SimpleGrantedAuthority>();
-        // Everyone gets the default USER role
-        authorities.add(ROLE_USER);
-
-        return authorities;
+        return userProfile.getRoles().stream()
+            .map(role -> new SimpleGrantedAuthority(role.name()))
+            .collect(Collectors.toSet());
     }
 
     @Override
