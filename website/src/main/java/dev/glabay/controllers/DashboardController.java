@@ -104,14 +104,48 @@ public class DashboardController {
     @PreAuthorize("hasRole('MANAGER')")
     public String getAdminDashboard(HttpServletRequest request, Model model) {
         var email = request.getRemoteUser();
-
         var employeeDto = restClient.get()
             .uri("http://localhost:8082/api/v1/employees?email=".concat(email))
             .retrieve()
             .toEntity(new ParameterizedTypeReference<EmployeeDto>() {})
             .getBody();
 
+        var employees = restClient.get()
+            .uri("http://localhost:8082/api/v1/employees/all")
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<List<EmployeeDto>>() {})
+            .getBody();
+
+        var customers = restClient.get()
+            .uri("http://localhost:8080/api/v1/customers")
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<List<CustomerDto>>() {})
+            .getBody();
+
+        var recentTickets = restClient.get()
+            .uri("http://localhost:8081/api/v1/tickets/recent")
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
+            .getBody();
+
+        var openCount = restClient.get()
+            .uri("http://localhost:8081/api/v1/tickets/open-count")
+            .retrieve()
+            .toEntity(Long.class)
+            .getBody();
+
+        var closedCount = restClient.get()
+            .uri("http://localhost:8081/api/v1/tickets/closed-count")
+            .retrieve()
+            .toEntity(Long.class)
+            .getBody();
+
         model.addAttribute("employee", employeeDto);
+        model.addAttribute("employees", employees);
+        model.addAttribute("customers", customers);
+        model.addAttribute("recentTickets", recentTickets);
+        model.addAttribute("activeTicketCount", openCount);
+        model.addAttribute("resolvedTicketCount", closedCount);
         return "dashboards/admin/dashboard";
     }
 
