@@ -17,7 +17,7 @@
                     <!-- TODO: Write the controller for Owner View -->
                     <a class="nav-link" href="#" th:href="@{/acp}">Database</a>
                 </li>
-                <li sec:authorize="hasAnyRole('ROLE_DEVELOPER', 'ROLE_MANAGEMENT')" class="nav-item">
+                <li sec:authorize="hasAnyRole('ROLE_DEVELOPER', 'ROLE_MANAGER')" class="nav-item">
                     <!-- TODO: Write the controller for Manager View -->
                     <a class="nav-link" href="#" th:href="@{/dashboard/admin}">Admin Dashboard</a>
                 </li>
