@@ -1,12 +1,7 @@
 package dev.glabay.controllers;
 
-import dev.glabay.dtos.CustomerDeviceDto;
-import dev.glabay.dtos.CustomerDto;
-import dev.glabay.dtos.ServiceDto;
-import dev.glabay.dtos.ServiceTicketDto;
+import dev.glabay.dtos.*;
 import dev.glabay.models.device.DeviceType;
-import dev.glabay.models.device.RegisteringDevice;
-import dev.glabay.models.request.ServiceRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -15,8 +10,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestClient;
 
@@ -96,4 +89,22 @@ public class DashboardController {
         model.addAttribute("openTickets", openTickets);
         return "dashboards/tickets/dashboard";
     }
+
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('MANAGER')")
+    public String getAdminDashboard(HttpServletRequest request, Model model) {
+        var email = request.getRemoteUser();
+
+        var employeeDto = restClient.get()
+            .uri("http://localhost:8082/api/v1/employees?email=".concat(email))
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<EmployeeDto>() {})
+            .getBody();
+
+        model.addAttribute("employee", employeeDto);
+        return "dashboards/admin/dashboard";
+    }
+
+
 }
