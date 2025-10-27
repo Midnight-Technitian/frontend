@@ -51,7 +51,7 @@
                     </svg>
                 </div>
                 <h3>Claimed Tickets</h3>
-                <p th:text="${claimedTicketCount} + ' in progress'">5 in progress</p>
+                <p th:text="${#lists.size(claimedTickets)} + ' in progress'">5 in progress</p>
             </div>
         </div>
     </section>
@@ -64,18 +64,18 @@
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 3h18v4H3zM3 11h18v4H3zM3 19h18v2H3z"></path>
                 </svg>
-                Ticket Management
+                Open Service Requests
             </h2>
             <div>
-                <span class="ticket-count" th:text="${totalTickets} + ' total'">17 total</span>
+                <span class="ticket-count" th:text="${#lists.size(openTickets)} + ' total'">17 total</span>
             </div>
         </div>
 
         <div class="tickets-grid">
             <!-- Unclaimed Tickets -->
-            <div th:each="ticket : ${unclaimedTickets}" class="ticket-card status-pending">
+            <div th:each="ticket : ${openTickets}" class="ticket-card status-pending">
                 <div class="ticket-header">
-                    <span class="ticket-id" th:text="'#' + ${ticket.id}">#1245</span>
+                    <span class="ticket-id" th:text="'#' + ${ticket.ticketId}">#1245</span>
                     <span class="ticket-status">Unclaimed</span>
                 </div>
                 <h3 class="ticket-title" th:text="${ticket.title}">Printer not working</h3>
@@ -89,14 +89,28 @@
                         </svg>
                         <span th:text="${ticket.createdAt}">2025-10-25</span>
                     </span>
-                    <button class="ticket-view-btn" th:onclick="'claimTicket(' + ${ticket.id} + ')'">Claim</button>
                 </div>
             </div>
-
+        </div>
+    </section>
+    <section class="tickets-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3h18v4H3zM3 11h18v4H3zM3 19h18v2H3z"></path>
+                </svg>
+                Active Service Requests
+            </h2>
+            <div>
+                <span class="ticket-count" th:text="${#lists.size(claimedTickets)} + ' total'">17 total</span>
+            </div>
+        </div>
+        <div class="tickets-grid">
             <!-- Claimed Tickets -->
             <div th:each="ticket : ${claimedTickets}" class="ticket-card status-progress">
                 <div class="ticket-header">
-                    <span class="ticket-id" th:text="'#' + ${ticket.id}">#1250</span>
+                    <span class="ticket-id" th:text="'#' + ${ticket.ticketId}">#1250</span>
                     <span class="ticket-status">Claimed</span>
                 </div>
                 <h3 class="ticket-title" th:text="${ticket.title}">Network issue</h3>
@@ -110,7 +124,6 @@
                         </svg>
                         <span th:text="${ticket.updatedAt}">2025-10-25</span>
                     </span>
-                    <button class="ticket-view-btn" th:onclick="'viewTicket(' + ${ticket.id} + ')'">View</button>
                 </div>
             </div>
         </div>

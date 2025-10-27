@@ -74,6 +74,12 @@ public class DashboardController {
         // get the email of the user to fetch their employee record
         var email = request.getRemoteUser();
 
+        var employeeDto = restClient.get()
+            .uri("http://localhost:8082/api/v1/employees?email=".concat(email))
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<EmployeeDto>() {})
+            .getBody();
+
         var openTickets = restClient.get()
             .uri("http://localhost:8081/api/v1/tickets/unclaimed")
             .retrieve()
@@ -86,6 +92,7 @@ public class DashboardController {
             .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
             .getBody();
 
+        model.addAttribute("employee", employeeDto);
         model.addAttribute("openTickets", openTickets);
         model.addAttribute("claimedTickets", claimedTickets);
         return "dashboards/tickets/dashboard";
