@@ -141,9 +141,9 @@ public class DashboardController {
             .getBody();
 
         model.addAttribute("employee", employeeDto);
-        model.addAttribute("employees", employees);
-        model.addAttribute("customers", customers);
-        model.addAttribute("recentTickets", recentTickets);
+        model.addAttribute("employees", Objects.isNull(employees) ? List.of() : employees);
+        model.addAttribute("customers", Objects.isNull(customers) ? List.of() : customers);
+        model.addAttribute("recentTickets", Objects.isNull(recentTickets) ? List.of() : recentTickets);
         model.addAttribute("activeTicketCount", openCount);
         model.addAttribute("resolvedTicketCount", closedCount);
         return "dashboards/admin/dashboard";
