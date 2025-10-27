@@ -87,6 +87,7 @@ public class DashboardController {
             .getBody();
 
         model.addAttribute("openTickets", openTickets);
+        model.addAttribute("claimedTickets", claimedTickets);
         return "dashboards/tickets/dashboard";
     }
 
