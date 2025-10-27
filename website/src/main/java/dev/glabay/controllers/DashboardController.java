@@ -15,6 +15,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Glabay | Glabay-Studios
@@ -93,8 +94,8 @@ public class DashboardController {
             .getBody();
 
         model.addAttribute("employee", employeeDto);
-        model.addAttribute("openTickets", openTickets);
-        model.addAttribute("claimedTickets", claimedTickets);
+        model.addAttribute("openTickets", Objects.isNull(openTickets) ? List.of() : openTickets);
+        model.addAttribute("claimedTickets", Objects.isNull(claimedTickets) ? List.of() : claimedTickets);
         return "dashboards/tickets/dashboard";
     }
 
