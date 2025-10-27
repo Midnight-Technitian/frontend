@@ -1,5 +1,7 @@
 # Midnight Technician
 
+![midnight_technician logo](https://img.shields.io/badge/Mitnight%20Tecnician-Open%20Source-purple?style=for-the-badge&logo=java)
+
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.0--M3-brightgreen?style=flat-square&logo=spring)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
@@ -29,21 +31,19 @@ The system provides separate portals for customers and employees, ensuring strea
 
 ---
 ## Features
-### Customer Portal
+### Customer Dashboard
 - **Profile Management**: Register and maintain customer profiles
 - **Device Registration**: Add and manage information about devices needing service
 - **Service Requests**: Submit new repair/service tickets
 - **Ticket Tracking**: Monitor the status of ongoing service requests
 - **Service History**: View the complete history of past tickets and services
-### Employee Portal
+### Employee Dashboard
 - **Time Tracking**: Log and track work hours
 - **Employee Information**: View personal details, start date, current role, and role history
+- **Dashboard**: Overview of current workload and tasks
+### Ticket Dashboard
 - **Ticket Management**: Access and manage customer service requests
 - **Dashboard**: Overview of current workload and tasks
-### Device & Service Management
-- **Multi-Device Support**: Handle various device types from computers to gaming consoles
-- **Service Tracking**: Monitor diagnostics, repairs, backups, and hardware upgrades
-- **Status Management**: Real-time updates on service progress
 
 ---
 ## Tech Stack
@@ -57,26 +57,36 @@ The system provides separate portals for customers and employees, ensuring strea
 | **Language**  | Java            | JDK 25   |
 
 ---
-## Getting Started
-### Prerequisites
-- ☕ **JDK 25** or higher
-- 🔧 **Git**
-
----
-### Installation
-1. Clone the repository:
+# Getting Started
+1. Clone the repositories
     ```shell
-      git clone https://github.com/Midnight-Technitian/frontend.git
+    git clone https://github.com/Midnight-Technitian/backend.git
     ```
-2. Navigate to the project
-    ```shell
-        cd midnight-technician/frontend
-    ```
-3. Set up the environment
-    - Copy `.env.example` to `.env` (if available)
-    - Configure database connection and other required settings
-    - Run the Docker-compose.yml file to start the database
-    - Run the Website Module
+2. Set up the backend
+    - Configure application.properties with your DB credentials
+    - Configure your environment variables
+    - Backend Project -> Services Module:
+      - resources/data.sql to initialize the Postgres database
+    - Connect to MongoDB from your Intellij Datasource panel
+      - Create a new connection with the following details:
+        - url: `mongodb://M_T_USER:M_T_PASSWORD@localhost:27042/midnight-technician?authSource=admin`
+      - Create the databases in the MongoDB shell:
+        - Use the command `use midnight-employee` to create the database
+            - Use the command `db.createCollection("employee")` to create the collection
+            - Use the command `db.createCollection("midnight_wmployee_sequences")` to create the collection
+        - Use the command `use midnight-ticketing` to create the database
+            - Use the command `db.createCollection("service_ticket")` to create the collection
+            - Use the command `db.createCollection("midnight_technician_sequences")` to create the collection
+3. Setting up the environment variables
+    - Review the `.env.example` file for the require token names
+    - Navigate to https://sentry.io/auth/login/ and on your dashboard create a new project
+    - Create the project name as `midnight-technician` for the application conventions
+    - From here you can find your AUTH_TOKEN, and DNS you need
+    - For the SENTRY_ENVIRONMENT leave this as `development`
+4. Running the Website:
+    - Inside the Services View in Intellij, Click the + icon to add Spring Boot configuration
+    - Run the website
+    - Navigate to http://localhost to view the website
 
 ---
 ## Contributing
