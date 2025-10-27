@@ -60,9 +60,9 @@ The system provides separate portals for customers and employees, ensuring strea
 # Getting Started
 1. Clone the repositories
     ```shell
-    git clone https://github.com/Midnight-Technitian/backend.git
+    git clone https://github.com/Midnight-Technitian/frontend.git
     ```
-2. Set up the backend
+2. Set up the database
     - Configure application.properties with your DB credentials
     - Configure your environment variables
     - Backend Project -> Services Module:
@@ -78,7 +78,7 @@ The system provides separate portals for customers and employees, ensuring strea
             - Use the command `db.createCollection("service_ticket")` to create the collection
             - Use the command `db.createCollection("midnight_technician_sequences")` to create the collection
 3. Setting up the environment variables
-    - Review the `.env.example` file for the require token names
+    - Review the `.env.example` file for the required token names
     - Navigate to https://sentry.io/auth/login/ and on your dashboard create a new project
     - Create the project name as `midnight-technician` for the application conventions
     - From here you can find your AUTH_TOKEN, and DNS you need
@@ -170,7 +170,7 @@ Follow these steps to contribute:
 8. **Create a Pull Request**
     - Go to your fork on GitHub
     - Click "New pull request"
-    - Select the base repository: `glabay/glabtech`
+    - Select the base repository
     - Select base branch: `main` (or the default branch)
     - Select your feature branch from your fork
     - Fill out the PR template with:
