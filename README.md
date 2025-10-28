@@ -252,5 +252,5 @@ For more information about the MIT License, visit: https://opensource.org/licens
 
 ---
 ### 🏢 **Developed by Glabay Studios**
-**Made with ❤️ for the tech repair community**
+**Made with ❤️ and coffee for the tech repair community**
 
