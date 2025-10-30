@@ -89,10 +89,14 @@
                         </svg>
                         <span th:text="${ticket.createdAt}">2025-10-25</span>
                     </span>
+                    <a class="ticket-view-btn btn btn-primary" th:href="@{/dashboard/ticket(id=${ticket.ticketId})}">
+                        View Details
+                    </a>
                 </div>
             </div>
         </div>
     </section>
+
     <section class="tickets-section">
         <div class="section-header">
             <h2 class="section-title">
