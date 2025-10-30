@@ -1,13 +1,14 @@
 package dev.glabay.controllers;
 
 import dev.glabay.dtos.*;
+import dev.glabay.logging.MidnightLogger;
 import dev.glabay.models.device.DeviceType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
+import org.slf4j.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestClient;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Glabay | Glabay-Studios
@@ -31,6 +33,8 @@ import java.util.Objects;
 @RequestMapping("/dashboard")
 @RequiredArgsConstructor
 public class DashboardController {
+    private final Logger logger = MidnightLogger.getLogger(DashboardController.class);
+
     private final RestClient restClient;
 
     @GetMapping
@@ -82,24 +86,27 @@ public class DashboardController {
     ) {
         var email = request.getRemoteUser();
 
-        var employeeDto = restClient.get()
-            .uri("http://localhost:8082/api/v1/employees?email={email}", email)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<EmployeeDto>() {})
-            .getBody();
+        var employeeDto = getEmployee(email);
+        if (employeeDto.isEmpty()) {
+            logger.debug("Failed to retrieve employee data for email: {}", email);
+            return "redirect:/error";
+        }
 
-        var serviceTicketDto = restClient.get()
+        var ticketResponseSpec = restClient.get()
             .uri("http://localhost:8081/api/v1/tickets?ticketId=".concat(ticketId))
-            .retrieve()
-            .onStatus(status ->
-                status.is4xxClientError() || status.is5xxServerError(), (_, _) -> {
-                    throw new RuntimeException("Failed to retrieve ticket data");
-            })
-            .toEntity(new ParameterizedTypeReference<ServiceTicketDto>() {})
-            .getBody();
+            .retrieve();
 
-        model.addAttribute("employee", employeeDto);
-        model.addAttribute("serviceTicket", Objects.isNull(serviceTicketDto) ? new ServiceTicketDto() : serviceTicketDto);
+        var ticketStatus = ticketResponseSpec.toBodilessEntity().getStatusCode();
+        if (ticketStatus == HttpStatus.NOT_FOUND)
+            return "redirect:/error";
+
+        var optionalServiceTicketDto = Optional.ofNullable(ticketResponseSpec.body(new ParameterizedTypeReference<ServiceTicketDto>() {}));
+        if (optionalServiceTicketDto.isEmpty())
+            return "redirect:/error";
+        var serviceTicketDto = optionalServiceTicketDto.get();
+
+        model.addAttribute("employee", employeeDto.get());
+        model.addAttribute("serviceTicket", serviceTicketDto);
         return "dashboards/tickets/ticket_view";
     }
 
@@ -109,15 +116,11 @@ public class DashboardController {
         // get the email of the user to fetch their employee record
         var email = request.getRemoteUser();
 
-        var employeeDto = restClient.get()
-            .uri("http://localhost:8082/api/v1/employees?email={email}", email)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, (_, response) -> {
-                if (response.getStatusCode() == HttpStatus.NOT_FOUND)
-                    throw new RuntimeException("Employee not found");
-            })
-            .toEntity(new ParameterizedTypeReference<EmployeeDto>() {})
-            .getBody();
+        var employeeDto = getEmployee(email);
+        if (employeeDto.isEmpty()) {
+            logger.debug("Failed to retrieve employee data for email: {}", email);
+            return "redirect:/error";
+        }
 
         var openTickets = restClient.get()
             .uri("http://localhost:8081/api/v1/tickets/unclaimed")
@@ -131,7 +134,7 @@ public class DashboardController {
             .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
             .getBody();
 
-        model.addAttribute("employee", employeeDto);
+        model.addAttribute("employee", employeeDto.get());
         model.addAttribute("openTickets", Objects.isNull(openTickets) ? List.of() : openTickets);
         model.addAttribute("claimedTickets", Objects.isNull(claimedTickets) ? List.of() : claimedTickets);
         return "dashboards/tickets/dashboard";
@@ -142,11 +145,11 @@ public class DashboardController {
     @PreAuthorize("hasRole('MANAGER')")
     public String getAdminDashboard(HttpServletRequest request, Model model) {
         var email = request.getRemoteUser();
-        var employeeDto = restClient.get()
-            .uri("http://localhost:8082/api/v1/employees?email={email}", email)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<EmployeeDto>() {})
-            .getBody();
+        var employeeDto = getEmployee(email);
+        if (employeeDto.isEmpty()) {
+            logger.debug("Failed to retrieve employee data for email: {}", email);
+            return "redirect:/error";
+        }
 
         var employees = restClient.get()
             .uri("http://localhost:8082/api/v1/employees/all")
@@ -196,7 +199,7 @@ public class DashboardController {
             null
         );
 
-        model.addAttribute("employee", employeeDto);
+        model.addAttribute("employee", employeeDto.get());
         model.addAttribute("newEmployee", emptyEmployee);
         model.addAttribute("employees", Objects.isNull(employees) ? List.of() : employees);
         model.addAttribute("customers", Objects.isNull(customers) ? List.of() : customers);
@@ -204,6 +207,20 @@ public class DashboardController {
         model.addAttribute("activeTicketCount", openCount);
         model.addAttribute("resolvedTicketCount", closedCount);
         return "dashboards/admin/dashboard";
+    }
+
+
+    private Optional<EmployeeDto> getEmployee(String email) {
+        var responseSpec = restClient.get()
+            .uri("http://localhost:8082/api/v1/employees?email={email}", email)
+            .retrieve();
+
+        var status = responseSpec.toBodilessEntity().getStatusCode();
+        if (status == HttpStatus.NOT_FOUND) {
+            logger.debug("Failed to retrieve employee data for email: {} returning empty Optional", email);
+            return Optional.empty();
+        }
+        return Optional.ofNullable(responseSpec.body(new ParameterizedTypeReference<>() {}));
     }
 
 }
