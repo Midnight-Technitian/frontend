@@ -27,6 +27,7 @@ function submitNewDeviceRegistration(event) {
                 alert("Device registered successfully!");
                 closeNewDeviceModal();
                 form.reset();
+                location.reload();
             } else {
                 alert("Failed to register device. Please try again.");
             }
