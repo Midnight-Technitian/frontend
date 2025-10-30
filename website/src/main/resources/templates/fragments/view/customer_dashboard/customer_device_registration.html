@@ -5,8 +5,8 @@
     <div id="newDeviceModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeNewDeviceModal()">&times;</span>
-            <h2>New Service Ticket</h2>
-            <form id="newServiceRequest" onsubmit="submitNewDeviceRegistration(event)">
+            <h2>New Device Registration</h2>
+            <form id="newDeviceRequest" onsubmit="submitNewDeviceRegistration(event)">
 
                 <label for="customerEmail">Contact email/Type</label>
                 <input type="text" id="customerEmail" name="customerEmail" th:value="${customerEmail}" required>
@@ -25,7 +25,7 @@
                 <label for="deviceInfo">Device Info</label>
                 <input type="text" id="deviceInfo" name="deviceInfo" placeholder="e.g. 2025 iPhone 17" required>
 
-                <button type="submit" class="submit-btn">Submit Ticket</button>
+                <button type="submit" class="submit-btn">Submit new Device</button>
             </form>
         </div>
     </div>
