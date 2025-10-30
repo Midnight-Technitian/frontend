@@ -28,6 +28,7 @@ function submitNewTicket(event) {
                 alert("Ticket created successfully!");
                 closeNewTicketModal();
                 form.reset();
+                location.reload();
             } else {
                 alert("Failed to create ticket. Please try again.");
             }

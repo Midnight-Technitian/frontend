@@ -1,9 +1,10 @@
 package dev.glabay.controllers;
 
 import dev.glabay.dtos.CustomerDeviceDto;
+import dev.glabay.dtos.EmployeeDto;
 import dev.glabay.dtos.ServiceTicketDto;
+import dev.glabay.models.ServiceNote;
 import dev.glabay.models.device.RegisteringDevice;
-import dev.glabay.models.request.ServiceRequest;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,21 +27,6 @@ import org.springframework.web.client.RestClient;
 public class ApiRequestController {
     private final RestClient restClient;
 
-    @PostMapping("/tickets")
-    private String postNewTicket(@RequestBody ServiceRequest body) {
-        var ticket = restClient.post()
-            .uri("http://localhost:8081/api/v1/tickets")
-            .body(body)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<ServiceTicketDto>() {})
-            .getBody();
-
-        if (ticket == null)
-            return "redirect:/error";
-
-        return "redirect:/dashboard";
-    }
-
     @PostMapping("/device")
     private String postNewDevice(@RequestBody RegisteringDevice body) {
         var deviceDto = restClient.post()
@@ -54,5 +40,35 @@ public class ApiRequestController {
             return "redirect:/error";
 
         return "redirect:/dashboard";
+    }
+
+    @PostMapping("/employee")
+    private String postNewEmployee(@RequestBody EmployeeDto body) {
+        var deviceDto = restClient.post()
+            .uri("http://localhost:8082/api/v1/employees")
+            .body(body)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<EmployeeDto>() {})
+            .getBody();
+
+        if (deviceDto == null)
+            return "redirect:/error";
+
+        return "redirect:/dashboard/admin";
+    }
+
+    @PostMapping("/service-ticket/notes")
+    private String postNewServiceTicketNotes(@RequestBody ServiceNote body) {
+        var serviceNoteDto = restClient.post()
+            .uri("http://localhost:8081/api/v1/tickets/note")
+            .body(body)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<ServiceTicketDto>() {})
+            .getBody();
+
+        if (serviceNoteDto == null)
+            return "redirect:/error";
+
+        return "redirect:/dashboard/ticket?id=".concat(serviceNoteDto.getTicketId());
     }
 }
