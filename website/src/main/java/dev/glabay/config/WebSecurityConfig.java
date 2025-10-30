@@ -2,7 +2,7 @@ package dev.glabay.config;
 
 import dev.glabay.feaures.users.CustomUserDetailsService;
 import dev.glabay.feaures.users.UserProfileRepository;
-import dev.glabay.feaures.users.UserRoleService;
+import dev.glabay.feaures.roles.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

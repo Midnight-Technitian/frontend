@@ -1,4 +1,4 @@
-package dev.glabay.feaures.users;
+package dev.glabay.feaures.roles;
 
 import jakarta.persistence.*;
 import lombok.Getter;

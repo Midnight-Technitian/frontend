@@ -1,5 +1,6 @@
 package dev.glabay.feaures.users;
 
+import dev.glabay.feaures.roles.UserRoleService;
 import dev.glabay.logging.MidnightLogger;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -27,26 +28,29 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("Loading UserDetails for username: {}", username);
+        log.info("Loading UserDetails for email: {}", username);
         if (!userProfileRepository.existsByEmail(username)) {
             log.debug("No user found for for email: {}", username);
             throw new UsernameNotFoundException("User not found: " + username);
         }
         var cachedUser = userProfileRepository.findByEmailIgnoreCase(username);
-        log.info("UserDetails for username: {}", cachedUser);
-        return cachedUser
-            .map(userProfile -> {
-                var cachedRoles = userRoleService.findAllForEmail(userProfile.getEmail());
-                var authorities = cachedRoles.stream()
-                    .map(role -> new SimpleGrantedAuthority(role.getRole()))
-                    .toList();
+        if (cachedUser.isPresent()) {
+            log.info("UserDetails for email: {}", cachedUser.get().getEmail());
+            return cachedUser
+                .map(userProfile -> {
+                    var cachedRoles = userRoleService.findAllForEmail(userProfile.getEmail());
+                    var authorities = cachedRoles.stream()
+                        .map(role -> new SimpleGrantedAuthority(role.getRole()))
+                        .toList();
 
-                return new org.springframework.security.core.userdetails.User(
-                    userProfile.getEmail(),
-                    userProfile.getEncryptedPassword(),
-                    authorities
-                );
-            })
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                    return new org.springframework.security.core.userdetails.User(
+                        userProfile.getEmail(),
+                        userProfile.getEncryptedPassword(),
+                        authorities
+                    );
+                }).get();
+
+        }
+        throw new UsernameNotFoundException("User not found: " + username);
     }
 }

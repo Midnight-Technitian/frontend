@@ -1,4 +1,4 @@
-package dev.glabay.feaures.users;
+package dev.glabay.feaures.roles;
 
 import dev.glabay.logging.MidnightLogger;
 import dev.glabay.models.roles.Role;
