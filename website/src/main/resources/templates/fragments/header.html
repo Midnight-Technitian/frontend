@@ -19,10 +19,10 @@
                 </li>
                 <li sec:authorize="hasAnyRole('ROLE_DEVELOPER', 'ROLE_MANAGER')" class="nav-item">
                     <!-- TODO: Write the controller for Manager View -->
-                    <a class="nav-link" href="#" th:href="@{/dashboard/admin}">Admin Dashboard</a>
+                    <a class="nav-link" href="#" th:href="@{/dashboard/admin}">Manager view</a>
                 </li>
                 <li sec:authorize="hasRole('ROLE_TECHNICIAN')" class="nav-item">
-                    <a class="nav-link" href="#" th:href="@{/dashboard/ticketing}">Ticket Dashboard</a>
+                    <a class="nav-link" href="#" th:href="@{/dashboard/ticketing}">Ticketing view</a>
                 </li>
                 <li sec:authorize="hasRole('ROLE_USER')" class="nav-item">
                     <a class="nav-link" href="#" th:href="@{/dashboard}">Dashboard</a>
