@@ -13,13 +13,12 @@
 
                 <label for="deviceId">Select Existing Device</label>
                 <select id="deviceId" name="deviceId">
-                    <!-- Default "None" option -->
                     <option value="">New Device</option>
-                    <!-- Populate dynamically from backend -->
-                    <option th:each="device : ${devices}"
-                            th:value="${device.deviceId()}"
-                            th:text="${device.deviceName()}">
-                    </option>
+                    <th:block th:each="device : ${devices}">
+                        <option th:value="${device.deviceId()}"
+                                th:text="${device.deviceName()}">
+                        </option>
+                    </th:block>
                 </select>
 
                 <label for="deviceName">Device Name/Type</label>
