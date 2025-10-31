@@ -1,3 +1,7 @@
+function openAddNoteModal() {
+    document.getElementById('addNoteModal').style.display = 'block';
+}
+
 function closeAddNoteModal() {
     document.getElementById('addNoteModal').style.display = 'none';
 }

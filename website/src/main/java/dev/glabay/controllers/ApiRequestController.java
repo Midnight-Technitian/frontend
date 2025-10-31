@@ -71,4 +71,19 @@ public class ApiRequestController {
 
         return "redirect:/dashboard/ticket?id=".concat(serviceNoteDto.getTicketId());
     }
+
+    @PostMapping("/service-ticket")
+    private String updateServiceTicketNotes(@RequestBody ServiceTicketDto body) {
+        var serviceNoteDto = restClient.put()
+            .uri("http://localhost:8081/api/v1/tickets")
+            .body(body)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<ServiceTicketDto>() {})
+            .getBody();
+
+        if (serviceNoteDto == null)
+            return "redirect:/error";
+
+        return "redirect:/dashboard/ticket?id=".concat(serviceNoteDto.getTicketId());
+    }
 }
