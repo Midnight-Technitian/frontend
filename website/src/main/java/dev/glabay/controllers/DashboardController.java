@@ -44,7 +44,7 @@ public class DashboardController {
         var email = request.getRemoteUser();
         // fetch the customer data object
         var customerDto = restClient.get()
-            .uri("http://localhost:8080/api/v1/customers/email?email={email}", email)
+            .uri("http://localhost:8083/api/v1/customers/email?email={email}", email)
             .retrieve()
             .toEntity(new ParameterizedTypeReference<CustomerDto>() {})
             .getBody();
@@ -63,7 +63,7 @@ public class DashboardController {
         var serviceTicketDto = optionalServiceTicketDto.get();
 
         var deviceResponseSpec = restClient.get()
-            .uri("http://localhost:8080/api/v1/devices/device?deviceId={deviceId}", serviceTicketDto.getCustomerDeviceId())
+            .uri("http://localhost:8084/api/v1/devices/device?deviceId={deviceId}", serviceTicketDto.getCustomerDeviceId())
                 .retrieve();
 
         var deviceStatus = deviceResponseSpec.toBodilessEntity().getStatusCode();
@@ -103,7 +103,7 @@ public class DashboardController {
         var email = request.getRemoteUser();
         // fetch the customer data object
         var customerDto = restClient.get()
-            .uri("http://localhost:8080/api/v1/customers/email?email={email}", email)
+            .uri("http://localhost:8083/api/v1/customers/email?email={email}", email)
             .retrieve()
             .toEntity(new ParameterizedTypeReference<CustomerDto>() {})
             .getBody();
@@ -120,13 +120,9 @@ public class DashboardController {
             .toEntity(new ParameterizedTypeReference<List<ServiceTicketDto>>() {})
             .getBody();
         // fetch customer Devices (up to a maximum of 6)
-        var devices = restClient.get()
-            .uri("http://localhost:8080/api/v1/devices?email={email}", email)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<List<CustomerDeviceDto>>() {})
-            .getBody();
         var devices = new ArrayList<CustomerDeviceDto>();
         var deviceResponseSpec = restClient.get()
+            .uri("http://localhost:8084/api/v1/devices?email={email}", email)
             .retrieve();
 
         var deviceStatus = deviceResponseSpec.toBodilessEntity().getStatusCode();
@@ -173,7 +169,7 @@ public class DashboardController {
         var serviceTicketDto = optionalServiceTicketDto.get();
 
         var deviceResponseSpec = restClient.get()
-            .uri("http://localhost:8080/api/v1/devices/device?deviceId={deviceId}", serviceTicketDto.getCustomerDeviceId())
+            .uri("http://localhost:8084/api/v1/devices/device?deviceId={deviceId}", serviceTicketDto.getCustomerDeviceId())
             .retrieve();
 
         var deviceStatus = deviceResponseSpec.toBodilessEntity().getStatusCode();
@@ -255,7 +251,7 @@ public class DashboardController {
             .getBody();
 
         var customers = restClient.get()
-            .uri("http://localhost:8080/api/v1/customers")
+            .uri("http://localhost:8083/api/v1/customers")
             .retrieve()
             .toEntity(new ParameterizedTypeReference<List<CustomerDto>>() {})
             .getBody();

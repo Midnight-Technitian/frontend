@@ -68,7 +68,7 @@ public class AuthenticationService {
         // TODO: Create a Kafka event for creating a new customer
         // for now we will just make a POST to the backend API
         var reply = restClient.post()
-            .uri("http://localhost:8080/api/v1/customers")
+            .uri("http://localhost:8083/api/v1/customers")
             .body(dto)
             .retrieve()
             .toEntity(new ParameterizedTypeReference<CustomerDto>() {});
