@@ -13,9 +13,13 @@
 
                 <label for="deviceId">Select Existing Device</label>
                 <select id="deviceId" name="deviceId">
-                    <option value="">New Device</option>
-                    <th:block th:each="device : ${devices}">
-                        <option th:value="${device.deviceId()}"
+                    <th:block th:if="${#lists.isEmpty(devices)}">
+                        <option value="">Unregistered Device</option>
+                    </th:block>
+                    <th:block th:unless="${#lists.isEmpty(devices)}">
+                        <option value="">New Device</option>
+                        <option th:each="device : ${devices}"
+                                th:value="${device.deviceId()}"
                                 th:text="${device.deviceName()}">
                         </option>
                     </th:block>
