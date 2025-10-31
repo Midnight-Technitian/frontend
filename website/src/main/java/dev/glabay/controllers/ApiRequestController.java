@@ -30,7 +30,7 @@ public class ApiRequestController {
     @PostMapping("/device")
     private String postNewDevice(@RequestBody RegisteringDevice body) {
         var deviceDto = restClient.post()
-            .uri("http://localhost:8080/api/v1/devices")
+            .uri("http://localhost:8084/api/v1/devices")
             .body(body)
             .retrieve()
             .toEntity(new ParameterizedTypeReference<CustomerDeviceDto>() {})

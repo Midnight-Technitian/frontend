@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestClient;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Glabay | Glabay-Studios
@@ -128,6 +125,13 @@ public class DashboardController {
             .retrieve()
             .toEntity(new ParameterizedTypeReference<List<CustomerDeviceDto>>() {})
             .getBody();
+        var devices = new ArrayList<CustomerDeviceDto>();
+        var deviceResponseSpec = restClient.get()
+            .retrieve();
+
+        var deviceStatus = deviceResponseSpec.toBodilessEntity().getStatusCode();
+        if (deviceStatus.is2xxSuccessful())
+            devices = deviceResponseSpec.body(new ParameterizedTypeReference<>() {});
 
         var deviceTypes = List.of(DeviceType.values());
 
