@@ -37,6 +37,69 @@ public class DashboardController {
 
     private final RestClient restClient;
 
+    @GetMapping("/user/ticket")
+    @PreAuthorize("hasRole('USER')")
+    public String getCustomerTicketDashboard(
+        @RequestParam("id") String ticketId,
+        HttpServletRequest request,
+        Model model
+    ) {
+        var email = request.getRemoteUser();
+        // fetch the customer data object
+        var customerDto = restClient.get()
+            .uri("http://localhost:8080/api/v1/customers/email?email={email}", email)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<CustomerDto>() {})
+            .getBody();
+
+        var ticketResponseSpec = restClient.get()
+            .uri("http://localhost:8081/api/v1/tickets?ticketId={ticketId}", ticketId)
+            .retrieve();
+
+        var ticketStatus = ticketResponseSpec.toBodilessEntity().getStatusCode();
+        if (ticketStatus == HttpStatus.NOT_FOUND)
+            return "redirect:/error";
+
+        var optionalServiceTicketDto = Optional.ofNullable(ticketResponseSpec.body(new ParameterizedTypeReference<ServiceTicketDto>() {}));
+        if (optionalServiceTicketDto.isEmpty())
+            return "redirect:/error";
+        var serviceTicketDto = optionalServiceTicketDto.get();
+
+        var deviceResponseSpec = restClient.get()
+            .uri("http://localhost:8080/api/v1/devices/device?deviceId={deviceId}", serviceTicketDto.getCustomerDeviceId())
+                .retrieve();
+
+        var deviceStatus = deviceResponseSpec.toBodilessEntity().getStatusCode();
+        if (deviceStatus == HttpStatus.NOT_FOUND)
+            return "redirect:/error";
+
+        var optionalDeviceDto = Optional.ofNullable(deviceResponseSpec.body(new ParameterizedTypeReference<CustomerDeviceDto>() {}));
+        if (optionalDeviceDto.isEmpty())
+            return "redirect:/error";
+
+        var deviceDto = optionalDeviceDto.get();
+
+        var serviceResponseSpec = restClient.get()
+            .uri("http://localhost:8080/api/v1/services/{serviceId}", serviceTicketDto.getServiceId())
+                .retrieve();
+
+        var serviceStatusCode = serviceResponseSpec.toBodilessEntity().getStatusCode();
+        if (serviceStatusCode == HttpStatus.NOT_FOUND)
+            return "redirect:/error";
+
+        var optionalServiceDto = Optional.ofNullable(serviceResponseSpec.body(new ParameterizedTypeReference<ServiceDto>() {}));
+        if (optionalServiceDto.isEmpty())
+            return "redirect:/error";
+
+        var serviceDto = optionalServiceDto.get();
+
+        model.addAttribute("customer", customerDto);
+        model.addAttribute("serviceTicket", serviceTicketDto);
+        model.addAttribute("device", deviceDto);
+        model.addAttribute("service", serviceDto);
+        return "dashboards/customer/ticket_view";
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('USER')")
     public String getDashboard(HttpServletRequest request, Model model) {
@@ -93,7 +156,7 @@ public class DashboardController {
         }
 
         var ticketResponseSpec = restClient.get()
-            .uri("http://localhost:8081/api/v1/tickets?ticketId=".concat(ticketId))
+            .uri("http://localhost:8081/api/v1/tickets?ticketId={ticketId}", ticketId)
             .retrieve();
 
         var ticketStatus = ticketResponseSpec.toBodilessEntity().getStatusCode();
@@ -105,8 +168,38 @@ public class DashboardController {
             return "redirect:/error";
         var serviceTicketDto = optionalServiceTicketDto.get();
 
+        var deviceResponseSpec = restClient.get()
+            .uri("http://localhost:8080/api/v1/devices/device?deviceId={deviceId}", serviceTicketDto.getCustomerDeviceId())
+            .retrieve();
+
+        var deviceStatus = deviceResponseSpec.toBodilessEntity().getStatusCode();
+        if (deviceStatus == HttpStatus.NOT_FOUND)
+            return "redirect:/error";
+
+        var optionalDeviceDto = Optional.ofNullable(deviceResponseSpec.body(new ParameterizedTypeReference<CustomerDeviceDto>() {}));
+        if (optionalDeviceDto.isEmpty())
+            return "redirect:/error";
+
+        var deviceDto = optionalDeviceDto.get();
+
+        var serviceResponseSpec = restClient.get()
+            .uri("http://localhost:8080/api/v1/services/{serviceId}", serviceTicketDto.getServiceId())
+            .retrieve();
+
+        var serviceStatusCode = serviceResponseSpec.toBodilessEntity().getStatusCode();
+        if (serviceStatusCode == HttpStatus.NOT_FOUND)
+            return "redirect:/error";
+
+        var optionalServiceDto = Optional.ofNullable(serviceResponseSpec.body(new ParameterizedTypeReference<ServiceDto>() {}));
+        if (optionalServiceDto.isEmpty())
+            return "redirect:/error";
+
+        var serviceDto = optionalServiceDto.get();
+
         model.addAttribute("employee", employeeDto.get());
         model.addAttribute("serviceTicket", serviceTicketDto);
+        model.addAttribute("device", deviceDto);
+        model.addAttribute("service", serviceDto);
         return "dashboards/tickets/ticket_view";
     }
 
