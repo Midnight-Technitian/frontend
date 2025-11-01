@@ -1,18 +1,19 @@
 package dev.glabay.services;
 
-import dev.glabay.dtos.CustomerDto;
 import dev.glabay.dtos.UserCredentialsDto;
 import dev.glabay.dtos.UserProfileDto;
 import dev.glabay.feaures.users.UserProfile;
 import dev.glabay.feaures.users.UserProfileRepository;
+import dev.glabay.kafka.KafkaTopics;
+import dev.glabay.kafka.UserRegisteredEvent;
 import dev.glabay.models.request.RegistrationStatus;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 /**
@@ -22,13 +23,14 @@ import java.time.LocalDateTime;
  * @since 2025-10-21
  */
 @Service
+@NullMarked
 @RequiredArgsConstructor
 public class AuthenticationService {
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final RestClient restClient;
 
     public RegistrationStatus registerUser(UserCredentialsDto request) {
         var exists = userProfileRepository.existsByEmail(request.email());
@@ -50,6 +52,7 @@ public class AuthenticationService {
             newUser.setUpdatedAt(LocalDateTime.now());
 
         var cached = userProfileRepository.save(newUser);
+        logger.info("User created and saved {}", cached);
         if (cached == null)
             return RegistrationStatus.FAILED;
         createNewCustomer(cached);
@@ -57,6 +60,7 @@ public class AuthenticationService {
     }
 
     private void createNewCustomer(UserProfile newUser) {
+        logger.info("Creating new customer for user {}", newUser);
         var dto = new UserProfileDto(
             newUser.getEmail(),
             newUser.getFirstName(),
@@ -65,23 +69,9 @@ public class AuthenticationService {
             newUser.getCreatedAt(),
             newUser.getUpdatedAt()
         );
-        // TODO: Create a Kafka event for creating a new customer
-        // for now we will just make a POST to the backend API
-        var reply = restClient.post()
-            .uri("http://localhost:8083/api/v1/customers")
-            .body(dto)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<CustomerDto>() {});
-
-        var status = reply.getStatusCode();
-
-        if (status.is2xxSuccessful()) {
-            var customerDto = reply.getBody();
-            // TODO: maybe we can add a little welcome email to be sent to the customer
-            logger.info("Customer created successfully\n{}", customerDto);
-        }
-        else {
-            logger.error("Failed to create customer");
-        }
+        // Create an event to make a new customer
+        var event = new UserRegisteredEvent(dto);
+        kafkaTemplate.send(KafkaTopics.USER_REGISTRATION.getTopicName(), dto.email(), event);
+        logger.info("User Registered Event sent to Kafka {}", event);
     }
 }
