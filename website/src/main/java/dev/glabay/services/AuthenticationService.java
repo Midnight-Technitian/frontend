@@ -62,6 +62,7 @@ public class AuthenticationService {
     private void createNewCustomer(UserProfile newUser) {
         logger.info("Creating new customer for user {}", newUser);
         var dto = new UserProfileDto(
+            newUser.getUid(),
             newUser.getEmail(),
             newUser.getFirstName(),
             newUser.getLastName(),
