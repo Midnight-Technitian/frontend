@@ -5,7 +5,7 @@ import dev.glabay.dtos.UserProfileDto;
 import dev.glabay.feaures.users.UserProfile;
 import dev.glabay.feaures.users.UserProfileRepository;
 import dev.glabay.kafka.KafkaTopics;
-import dev.glabay.kafka.UserRegisteredEvent;
+import dev.glabay.kafka.events.UserRegisteredEvent;
 import dev.glabay.models.request.RegistrationStatus;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -32,7 +32,7 @@ public class AuthenticationService {
     private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public RegistrationStatus registerUser(UserCredentialsDto request) {
+    public RegistrationStatus registerUser(UserCredentialsDto request, String ipAddress) {
         var exists = userProfileRepository.existsByEmail(request.email());
         if (exists)
             return RegistrationStatus.ALREADY_EXISTS;
@@ -55,11 +55,11 @@ public class AuthenticationService {
         logger.info("User created and saved {}", cached);
         if (cached == null)
             return RegistrationStatus.FAILED;
-        createNewCustomer(cached);
+        createNewCustomer(cached, ipAddress);
         return RegistrationStatus.CREATED;
     }
 
-    private void createNewCustomer(UserProfile newUser) {
+    private void createNewCustomer(UserProfile newUser, String ipAddress) {
         logger.info("Creating new customer for user {}", newUser);
         var dto = new UserProfileDto(
             newUser.getUid(),
@@ -71,7 +71,7 @@ public class AuthenticationService {
             newUser.getUpdatedAt()
         );
         // Create an event to make a new customer
-        var event = new UserRegisteredEvent(dto);
+        var event = new UserRegisteredEvent(dto, ipAddress);
         kafkaTemplate.send(KafkaTopics.USER_REGISTRATION.getTopicName(), dto.email(), event);
         logger.info("User Registered Event sent to Kafka {}", event);
     }

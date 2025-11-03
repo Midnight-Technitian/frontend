@@ -3,9 +3,11 @@ package dev.glabay.controllers;
 import dev.glabay.dtos.UserCredentialsDto;
 import dev.glabay.models.request.RegistrationStatus;
 import dev.glabay.services.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -35,8 +37,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("newUser") UserCredentialsDto request, Model model) {
-        var status = authService.registerUser(request);
+    public String registerUser(HttpServletRequest httpRequest, @ModelAttribute("newUser") UserCredentialsDto request, Model model) {
+        var status = authService.registerUser(request, httpRequest.getRemoteAddr());
         if (status.equals(RegistrationStatus.CREATED))
             return "redirect:/auth/login?registered";
         if (status.equals(RegistrationStatus.ALREADY_EXISTS))
